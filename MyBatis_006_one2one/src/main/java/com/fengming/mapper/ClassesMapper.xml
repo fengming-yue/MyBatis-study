@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fengming.mapper.ClassesMapper">
+    <!--
+        //查询指ID的班级信息
+        public Classes findById(Integer cid);
+
+            private Integer cid;
+            private String cname;
+            private Teacher teacher;
+    -->
+    <resultMap id="classesmap" type="classes">
+        <id property="cid" column="cid"></id>
+        <result property="cname" column="cname"></result>
+        <association property="teacher" javaType="teacher">
+            <id property="tid" column="tid"></id>
+            <result property="tname" column="tname"></result>
+            <result property="age" column="tage"></result>
+        </association>
+    </resultMap>
+    <select id="findById" parameterType="int" resultMap="classesmap">
+        select c.*,t.* from classes c,teacher t
+        where c.ctid = t.tid and c.cid = #{cid}
+    </select>
+</mapper>

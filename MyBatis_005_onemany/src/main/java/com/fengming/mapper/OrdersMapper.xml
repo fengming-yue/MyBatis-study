@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fengming.mapper.OrdersMapper">
+    <!--
+        //根据订单的主键id查询订单并同时查询该下此订单的客户信息
+        Orders getById(Integer id);
+    -->
+    <!--
+    手工绑定数据
+        private Integer id;
+        private String orderNumber;
+        private Double orderPrice;
+
+        //关联此订单下的客户信息,多方持有一方的对象
+        private Customer customer;
+    -->
+    <resultMap id="ordersmap" type="orders">
+        <!-- 主键绑定 -->
+        <id property="id" column="oid"></id>
+        <!-- 非主键绑定 -->
+        <result property="orderNumber" column="orderNumber"></result>
+        <result property="orderPrice" column="orderPrice"></result>
+
+        <association property="customer" javaType="customer">
+            <!-- 主键绑定 -->
+            <id property="id" column="cid"></id>
+            <!-- 非主键绑定 -->
+            <result property="name" column="name"></result>
+            <result property="age" column="age"></result>
+        </association>
+    </resultMap>
+    <select id="getById" parameterType="int" resultMap="ordersmap">
+        select o.id oid,orderNumber,orderPrice,customer_id,c.id cid,name,age
+        from orders o inner join customer c on c.id=o.customer_id
+        where o.id = #{id}
+    </select>
+
+</mapper>
