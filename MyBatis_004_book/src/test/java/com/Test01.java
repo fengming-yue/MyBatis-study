@@ -44,4 +44,10 @@ public class Test01 {
         List<Book> list = bookMapper.getAll();
         list.forEach(book -> System.out.println(book));
     }
+
+    @Test
+    public void testGetAll1(){
+        List<Book> list = bookMapper.getAll1();
+        list.forEach(book -> System.out.println(book));
+    }
 }

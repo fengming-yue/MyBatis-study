@@ -4,11 +4,27 @@
 
 <mapper namespace="com.fengming.mapper.BookMapper">
     <!--
-        //查询全部图书
+        //查询全部图书(使用别名)
         List<Book> getAll();
     -->
     <select id="getAll" resultType="book">
         select bookid id,bookname name
+        from book
+    </select>
+
+
+    <!--
+        //查询全部图书————使用resultMap手工完成映射(映射返回的类型)
+        List<Book> getAll1();
+    -->
+    <resultMap id="bookmap" type="book">
+        <!--主键绑定-->
+        <id property="id" column="bookid"></id>
+        <!--非主键绑定-->
+        <result property="name" column="bookname"></result>
+    </resultMap>
+    <select id="getAll1" resultMap="bookmap">
+        select bookid,bookname
         from book
     </select>
 </mapper>

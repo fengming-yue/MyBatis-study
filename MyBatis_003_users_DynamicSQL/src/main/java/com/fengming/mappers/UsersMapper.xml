@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fengming.mappers.UsersMapper">
+<!-- 动态sql语句 -->
+    <!-- 定义代码片段 allColumns:所有列 -->
+    <sql id="allColumns">
+        id,username,birthday,sex,address
+    </sql>
+
+    <select id="getAll" resultType="users">
+        select id,username,birthday,sex,address
+        from users
+    </select>
+
+    <!--
+        //按指定的条件进行多条件查询  if和where联合使用
+        List<Users> getByCondition(Users users);
+        根据实体类中的成员变量是否有值来决定是否添加条件
+            private Integer id; null
+            private String userName; null
+            private Date birthday; null
+            private String sex; null
+            private String address; null
+
+            private boolean; false
+        来用类中的成员变量来进行条件的判断(注:只有字符串才有null和空)
+        注意:if语句后面不能添加;会运行报错,一定注意!!!!!!!!
+    -->
+    <select id="getByCondition" resultType="users" parameterType="users">
+        select <include refid="allColumns"></include>
+        from users
+        <where>
+            <if test="userName != null and userName != ''">
+                and username like concat('%',#{userName},'%')
+            </if>
+            <if test="birthday != null">
+                and birthday = #{birthday}
+            </if>
+            <if test="sex != null and sex != ''">
+                and sex = #{sex}
+            </if>
+            <if test="address != null and address != ''">
+                and address like concat('%',#{address},'%')
+            </if>
+        </where>
+    </select>
+
+    <!--
+        //有选择的更新用户字段   set和if联合使用 if语句后面需要加,
+        int updateBySet(Users users);
+    -->
+    <update id="updateBySet" parameterType="users">
+        update users
+        <set>
+            <if test="userName != null and userName = ''">
+                username = #{userName},
+            </if>
+            <if test="birthday != null">
+                birthday = #{birthday},
+            </if>
+            <if test="sex != null and sex != ''">
+                sex = #{sex},
+            </if>
+            <if test="address != null and address !=''">
+                address = #{address},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--
+        //查询多个指定id的用户信息
+        List<Users> getByIds(Integer[] arr);
+        foreach中属性:
+            collection属性有三个取值:array\map\list
+            item:
+            separator:分隔符,多个值之间分割符
+            open和close:括号在外面就需要加;括号在里面就需写在语句外面(如批量增加)
+    -->
+    <select id="getByIds" resultType="users">
+        select <include refid="allColumns"></include>
+        from users
+        where id in
+        <foreach collection="array" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!--
+        //批量删除
+        int deleteBatch(Integer[] arr);
+    -->
+    <delete id="deleteBatch" >
+        delete from users
+        where id in
+        <foreach collection="array" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--
+        //批量增加
+        int insertBatch(List<Users> users);
+    -->
+    <insert id="insertBatch">
+        insert into users(username,birthday,sex,address)
+        values
+        <foreach collection="list" item="u" separator=",">
+            (#{u.userName},#{u.birthday},#{u.sex},#{u.address})
+        </foreach>
+    </insert>
+
+    <!--
+        //批量更新
+        int updateSet(List<Users> users);
+    -->
+    <update id="updateSet">
+        <foreach collection="list" item="u" separator=";">
+            update users
+            <set>
+                <if test="u.userName != null and u.userName != ''">
+                    username = #{u.userName}
+                </if>
+                <if test="u.birthday != null">
+                    birthday = #{u.birthday},
+                </if>
+                <if test="u.sex != null  and u.sex != ''">
+                    sex = #{u.sex},
+                </if>
+                <if test="u.address != null  and u.address != ''">
+                    address = #{u.address}
+                </if>
+            </set>
+            where id = #{u.id}
+        </foreach>
+    </update>
+
+    <!--
+        查询指定日期范围内的用户信息
+        List<Users> getByBirthday(Date begin, Date end);
+    -->
+    <select id="getByBirthday" resultType="users">
+        select <include refid="allColumns"></include>
+        from users
+        where birthday between #{arg0} and #{arg1}
+    </select>
+
+
+    <!--
+        //入参是map
+        List<Users> getByMap(Map map);
+        #{birthdayBegin}:就是map中的key
+        #{birthdayEnd}:就是map中的values
+     -->
+    <select id="getByMap" resultType="users">
+        select <include refid="allColumns"></include>
+        from users
+        where birthday between #{birthdayBegin} and #{birthdayEnd}
+    </select>
+
+
+    <!--
+        //返回值是map(一行)
+        Map<Users> getReturnOne(Integer id);
+    -->
+    <select id="getReturnOne" parameterType="int" resultType="map">
+        select username,address
+        from users
+        where id=#{id}
+    </select>
+
+    <!-- 使用别名 -->
+<!--    <select id="getReturnMap" parameterType="int" resultType="map">-->
+<!--        select username u,address a-->
+<!--        from users-->
+<!--        where id=#{id}-->
+<!--    </select>-->
+
+
+    <!--
+        //返回值是map(多行)
+        List<Map> getMulMap();
+    -->
+    <select id="getMulMap" resultType="map">
+        select username,address
+        from users
+    </select>
+
+</mapper>
